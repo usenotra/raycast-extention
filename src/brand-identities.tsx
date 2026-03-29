@@ -39,13 +39,6 @@ export default function Command() {
             ...(bi.toneProfile
               ? [{ tag: { value: bi.toneProfile, color: Color.Blue } }]
               : []),
-            ...(bi.isDefault
-              ? [{ tag: { value: "Default", color: Color.Green } }]
-              : []),
-            {
-              date: new Date(bi.updatedAt),
-              tooltip: `Updated: ${new Date(bi.updatedAt).toLocaleString()}`,
-            },
           ]}
           actions={
             <ActionPanel>
