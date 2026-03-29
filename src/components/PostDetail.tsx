@@ -10,12 +10,18 @@ import {
   Toast,
   useNavigation,
 } from "@raycast/api";
-import { EditPostForm } from "./EditPostForm";
 import { usePost } from "../hooks/usePost";
 import { deletePost, updatePost } from "../lib/notra";
-import { CONTENT_TYPE_LABELS, NOTRA_APP_URL } from "../schemas";
+import { CONTENT_TYPE_LABELS, notraUrl } from "../schemas";
+import { EditPostForm } from "./EditPostForm";
 
-export function PostDetail({ postId, onPostMutated }: { postId: string; onPostMutated?: () => Promise<void> | void }) {
+export function PostDetail({
+  postId,
+  onPostMutated,
+}: {
+  postId: string;
+  onPostMutated?: () => Promise<void> | void;
+}) {
   const { pop } = useNavigation();
   const { data, isLoading, revalidate } = usePost(postId);
   const post = data?.post;
@@ -36,7 +42,8 @@ export function PostDetail({ postId, onPostMutated }: { postId: string; onPostMu
     const nextStatus = post.status === "published" ? "draft" : "published";
     const toast = await showToast({
       style: Toast.Style.Animated,
-      title: nextStatus === "published" ? "Publishing post" : "Moving post to draft",
+      title:
+        nextStatus === "published" ? "Publishing post" : "Moving post to draft",
     });
 
     try {
@@ -47,7 +54,8 @@ export function PostDetail({ postId, onPostMutated }: { postId: string; onPostMu
       });
       await refreshPostState();
       toast.style = Toast.Style.Success;
-      toast.title = nextStatus === "published" ? "Post published" : "Post moved to draft";
+      toast.title =
+        nextStatus === "published" ? "Post published" : "Post moved to draft";
     } catch (error) {
       toast.style = Toast.Style.Failure;
       toast.title = "Could not update post";
@@ -93,6 +101,64 @@ export function PostDetail({ postId, onPostMutated }: { postId: string; onPostMu
 
   return (
     <Detail
+      actions={
+        post ? (
+          <ActionPanel>
+            <ActionPanel.Section>
+              <Action.Push
+                icon={Icon.Pencil}
+                shortcut={{ modifiers: ["cmd"], key: "e" }}
+                target={
+                  <EditPostForm onPostUpdated={refreshPostState} post={post} />
+                }
+                title="Edit Post"
+              />
+              <Action
+                icon={post.status === "published" ? Icon.Pencil : Icon.Upload}
+                onAction={handleStatusChange}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
+                title={
+                  post.status === "published" ? "Move to Draft" : "Publish Post"
+                }
+              />
+              <Action
+                icon={Icon.Trash}
+                onAction={handleDelete}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "x" }}
+                style={Action.Style.Destructive}
+                title="Delete Post"
+              />
+            </ActionPanel.Section>
+            <ActionPanel.Section>
+              <Action.OpenInBrowser
+                icon={Icon.Globe}
+                title="View on Notra"
+                url={
+                  organization
+                    ? notraUrl(`/${organization.slug}/content/${post.id}`)
+                    : notraUrl(`/content/${post.id}`)
+                }
+              />
+              <Action
+                icon={Icon.ArrowClockwise}
+                onAction={() => revalidate()}
+                shortcut={{ modifiers: ["cmd"], key: "r" }}
+                title="Refresh"
+              />
+              <Action.CopyToClipboard
+                content={post.markdown}
+                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
+                title="Copy Markdown"
+              />
+              <Action.CopyToClipboard
+                content={notraUrl(`/content/${post.id}`)}
+                shortcut={{ modifiers: ["cmd"], key: "." }}
+                title="Copy Link"
+              />
+            </ActionPanel.Section>
+          </ActionPanel>
+        ) : null
+      }
       isLoading={isLoading}
       markdown={markdown}
       metadata={
@@ -100,68 +166,31 @@ export function PostDetail({ postId, onPostMutated }: { postId: string; onPostMu
           <Detail.Metadata>
             <Detail.Metadata.TagList title="Status">
               <Detail.Metadata.TagList.Item
-                text={post.status === "published" ? "Published" : "Draft"}
                 color={post.status === "published" ? Color.Green : Color.Orange}
+                text={post.status === "published" ? "Published" : "Draft"}
               />
             </Detail.Metadata.TagList>
-            <Detail.Metadata.Label title="Organization" text={organization?.name ?? "-"} />
-            <Detail.Metadata.Label title="Type" text={CONTENT_TYPE_LABELS[post.contentType] ?? post.contentType} />
-            <Detail.Metadata.Label title="Created" text={new Date(post.createdAt).toLocaleDateString()} />
-            <Detail.Metadata.Label title="Updated" text={new Date(post.updatedAt).toLocaleDateString()} />
+            <Detail.Metadata.Label
+              text={organization?.name ?? "-"}
+              title="Organization"
+            />
+            <Detail.Metadata.Label
+              text={CONTENT_TYPE_LABELS[post.contentType] ?? post.contentType}
+              title="Type"
+            />
+            {(post.contentType === "blog_post" ||
+              post.contentType === "changelog") && (
+              <Detail.Metadata.Label text={post.slug ?? "—"} title="Slug" />
+            )}
+            <Detail.Metadata.Label
+              text={new Date(post.createdAt).toLocaleDateString()}
+              title="Created"
+            />
+            <Detail.Metadata.Label
+              text={new Date(post.updatedAt).toLocaleDateString()}
+              title="Updated"
+            />
           </Detail.Metadata>
-        ) : null
-      }
-      actions={
-        post ? (
-          <ActionPanel>
-            <ActionPanel.Section>
-              <Action.Push
-                icon={Icon.Pencil}
-                title="Edit Post"
-                target={<EditPostForm post={post} onPostUpdated={refreshPostState} />}
-                shortcut={{ modifiers: ["cmd"], key: "e" }}
-              />
-              <Action
-                icon={post.status === "published" ? Icon.Pencil : Icon.Upload}
-                title={post.status === "published" ? "Move to Draft" : "Publish Post"}
-                onAction={handleStatusChange}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "p" }}
-              />
-              <Action
-                icon={Icon.Trash}
-                style={Action.Style.Destructive}
-                title="Delete Post"
-                onAction={handleDelete}
-                shortcut={{ modifiers: ["cmd", "shift"], key: "x" }}
-              />
-            </ActionPanel.Section>
-            <ActionPanel.Section>
-              <Action.OpenInBrowser
-                url={
-                  organization
-                    ? `${NOTRA_APP_URL}/${organization.slug}/content/${post.id}`
-                    : `${NOTRA_APP_URL}/content/${post.id}`
-                }
-                title="Open in Notra"
-              />
-              <Action
-                icon={Icon.ArrowClockwise}
-                title="Refresh"
-                onAction={() => revalidate()}
-                shortcut={{ modifiers: ["cmd"], key: "r" }}
-              />
-              <Action.CopyToClipboard
-                content={post.markdown}
-                title="Copy Markdown"
-                shortcut={{ modifiers: ["cmd", "shift"], key: "c" }}
-              />
-              <Action.CopyToClipboard
-                content={`${NOTRA_APP_URL}/content/${post.id}`}
-                title="Copy Link"
-                shortcut={{ modifiers: ["cmd"], key: "." }}
-              />
-            </ActionPanel.Section>
-          </ActionPanel>
         ) : null
       }
     />

@@ -1,17 +1,21 @@
 import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
+import { CONTENT_TYPE_ICONS, CONTENT_TYPE_LABELS, notraUrl } from "../schemas";
 import type { Post } from "../types";
-import { CONTENT_TYPE_ICONS, CONTENT_TYPE_LABELS, NOTRA_APP_URL } from "../schemas";
 import { PostDetail } from "./PostDetail";
 
-export function PostListItem({ post, onPostMutated }: { post: Post; onPostMutated?: () => Promise<void> | void }) {
+export function PostListItem({
+  post,
+  onPostMutated,
+}: {
+  post: Post;
+  onPostMutated?: () => Promise<void> | void;
+}) {
   const contentTypeIcon = CONTENT_TYPE_ICONS[post.contentType] ?? Icon.Document;
-  const contentTypeLabel = CONTENT_TYPE_LABELS[post.contentType] ?? post.contentType;
+  const contentTypeLabel =
+    CONTENT_TYPE_LABELS[post.contentType] ?? post.contentType;
 
   return (
     <List.Item
-      icon={contentTypeIcon}
-      title={post.title.length > 60 ? `${post.title.slice(0, 60)}...` : post.title}
-      keywords={[post.title]}
       accessories={[
         { text: contentTypeLabel },
         {
@@ -20,22 +24,36 @@ export function PostListItem({ post, onPostMutated }: { post: Post; onPostMutate
             color: post.status === "published" ? Color.Green : Color.Orange,
           },
         },
-        { date: new Date(post.createdAt), tooltip: `Created: ${new Date(post.createdAt).toLocaleString()}` },
+        {
+          date: new Date(post.createdAt),
+          tooltip: `Created: ${new Date(post.createdAt).toLocaleString()}`,
+        },
       ]}
       actions={
         <ActionPanel>
           <Action.Push
             icon={Icon.Eye}
+            target={
+              <PostDetail onPostMutated={onPostMutated} postId={post.id} />
+            }
             title="View Post"
-            target={<PostDetail postId={post.id} onPostMutated={onPostMutated} />}
           />
-          <Action.OpenInBrowser url={`${NOTRA_APP_URL}/content/${post.id}`} title="Open in Notra" />
+          <Action.OpenInBrowser
+            icon={Icon.Globe}
+            title="View on Notra"
+            url={notraUrl(`/content/${post.id}`)}
+          />
           <Action.CopyToClipboard
-            content={`${NOTRA_APP_URL}/content/${post.id}`}
-            title="Copy Link"
+            content={notraUrl(`/content/${post.id}`)}
             shortcut={{ modifiers: ["cmd"], key: "." }}
+            title="Copy Link"
           />
         </ActionPanel>
+      }
+      icon={contentTypeIcon}
+      keywords={[post.title]}
+      title={
+        post.title.length > 60 ? `${post.title.slice(0, 60)}...` : post.title
       }
     />
   );

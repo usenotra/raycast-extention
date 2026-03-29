@@ -1,10 +1,10 @@
 import { Icon } from "@raycast/api";
 import type { ContentTypeFilter } from "../types";
 
-export interface ContentTypeOption {
+interface ContentTypeOption {
+  icon: Icon;
   title: string;
   value: ContentTypeFilter;
-  icon: Icon;
 }
 
 export const CONTENT_TYPE_OPTIONS: ContentTypeOption[] = [
@@ -29,4 +29,24 @@ export const CONTENT_TYPE_ICONS: Record<string, Icon> = {
   linkedin_post: Icon.PersonLines,
 };
 
-export const NOTRA_APP_URL = "https://app.usenotra.com";
+const NOTRA_APP_URL = "https://app.usenotra.com";
+
+export function notraUrl(path: string): string {
+  const sep = path.includes("?") ? "&" : "?";
+  return `${NOTRA_APP_URL}${path}${sep}utm_source=raycast`;
+}
+
+export const LOOKBACK_WINDOW_OPTIONS = [
+  { title: "Today", value: "current_day" },
+  { title: "Yesterday", value: "yesterday" },
+  { title: "Last 7 Days", value: "last_7_days" },
+  { title: "Last 14 Days", value: "last_14_days" },
+  { title: "Last 30 Days", value: "last_30_days" },
+];
+
+export const TONE_PROFILE_OPTIONS = [
+  { title: "Conversational", value: "Conversational" },
+  { title: "Professional", value: "Professional" },
+  { title: "Casual", value: "Casual" },
+  { title: "Formal", value: "Formal" },
+];

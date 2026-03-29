@@ -1,4 +1,5 @@
 import { useFetch } from "@raycast/utils";
+import type { ListPostsResponse } from "../lib/notra";
 import {
   getCachedValue,
   getNotraRequestInit,
@@ -7,7 +8,6 @@ import {
   NOTRA_API_URL,
   setCachedValue,
 } from "../lib/notra";
-import type { ListPostsResponse } from "../lib/notra";
 import type { ContentTypeFilter, Post } from "../types";
 
 const PAGE_SIZE = 20;
@@ -44,6 +44,6 @@ export function usePosts(contentType: ContentTypeFilter) {
           hasMore: result.pagination.nextPage !== null,
         };
       },
-    },
+    }
   );
 }

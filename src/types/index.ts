@@ -1,46 +1,117 @@
-/** Content type values matching the Notra API */
-export type ContentTypeValue = "changelog" | "linkedin_post" | "twitter_post" | "blog_post";
+export type ContentTypeValue =
+  | "changelog"
+  | "linkedin_post"
+  | "twitter_post"
+  | "blog_post";
 
-/** Filter includes "all" option for the UI dropdown */
 export type ContentTypeFilter = ContentTypeValue | "all";
 
-/** Post status values */
 export type PostStatus = "draft" | "published";
 
-/** A post object as returned by the Notra API */
+export type ToneProfile =
+  | "Conversational"
+  | "Professional"
+  | "Casual"
+  | "Formal";
+
+export type GenerationJobStatus = "queued" | "running" | "completed" | "failed";
+
 export interface Post {
-  id: string;
-  title: string;
   content: string;
+  contentType: string;
+  createdAt: string;
+  id: string;
   markdown: string;
   recommendations: string | null;
-  contentType: string;
+  slug: string | null;
   sourceMetadata?: unknown;
   status: PostStatus;
-  createdAt: string;
+  title: string;
   updatedAt: string;
 }
 
-/** An organization object as returned by the Notra API */
 export interface Organization {
   id: string;
+  logo: string | null;
   name: string;
   slug: string;
-  logo: string | null;
 }
 
-/** A post response with organization context */
 export interface PostDetails {
-  post: Post | null;
   organization: Organization;
+  post: Post | null;
 }
 
-/** Pagination info from the Notra API */
 export interface Pagination {
-  limit: number;
   currentPage: number;
+  limit: number;
   nextPage: number | null;
   previousPage: number | null;
-  totalPages: number;
   totalItems: number;
+  totalPages: number;
+}
+
+export interface BrandIdentity {
+  audience: string | null;
+  companyDescription: string | null;
+  companyName: string | null;
+  createdAt: string;
+  customInstructions: string | null;
+  customTone: string | null;
+  id: string;
+  isDefault: boolean;
+  language: string | null;
+  name: string;
+  toneProfile: ToneProfile | null;
+  updatedAt: string;
+  websiteUrl: string;
+}
+
+export interface GitHubIntegration {
+  defaultBranch: string | null;
+  displayName: string;
+  id: string;
+  owner: string | null;
+  repo: string | null;
+}
+
+export interface LinearIntegration {
+  displayName: string;
+  id: string;
+  linearOrganizationId: string;
+  linearOrganizationName: string | null;
+  linearTeamId: string | null;
+  linearTeamName: string | null;
+}
+
+export interface GenerationJob {
+  completedAt: string | null;
+  contentType: string;
+  createdAt: string;
+  error: string | null;
+  id: string;
+  lookbackWindow: string;
+  organizationId: string;
+  postId: string | null;
+  status: GenerationJobStatus;
+  updatedAt: string;
+}
+
+export interface GenerationEvent {
+  createdAt: string;
+  id: string;
+  jobId: string;
+  message: string;
+  metadata?: unknown;
+  type: string;
+}
+
+export interface BrandIdentityGenerationJob {
+  brandIdentityId: string | null;
+  completedAt: string | null;
+  createdAt: string;
+  error: string | null;
+  id: string;
+  status: GenerationJobStatus;
+  updatedAt: string;
 }

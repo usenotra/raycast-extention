@@ -1,7 +1,18 @@
 import { Cache, getPreferenceValues } from "@raycast/api";
-import type { Organization, Pagination, Post, PostDetails } from "../types";
+import type {
+  BrandIdentity,
+  BrandIdentityGenerationJob,
+  GenerationEvent,
+  GenerationJob,
+  GitHubIntegration,
+  LinearIntegration,
+  Organization,
+  Pagination,
+  Post,
+  PostDetails,
+} from "../types";
 
-export const NOTRA_API_URL = "https://api.usenotra.com";
+const NOTRA_API_URL = "https://api.usenotra.com";
 const cache = new Cache({ namespace: "notra" });
 
 type ApiPost = Omit<Post, "status"> & {
@@ -12,8 +23,8 @@ type ApiOrganization = Organization;
 
 export interface ListPostsResponse {
   organization: ApiOrganization;
-  posts: ApiPost[];
   pagination: Pagination;
+  posts: ApiPost[];
 }
 
 export interface GetPostResponse {
@@ -21,41 +32,119 @@ export interface GetPostResponse {
   post: ApiPost | null;
 }
 
-export interface UpdatePostRequest {
-  title: string;
+interface UpdatePostRequest {
   markdown: string;
+  slug?: string | null;
   status: Post["status"];
+  title: string;
 }
 
-export interface DeletePostResponse {
+interface DeletePostResponse {
   id: string;
   organization: ApiOrganization;
 }
 
-function normalizeHeaders(headers?: HeadersInit): Record<string, string> {
-  if (!headers) {
-    return {};
-  }
-
-  if (headers instanceof Headers) {
-    return Object.fromEntries(headers.entries());
-  }
-
-  if (Array.isArray(headers)) {
-    return Object.fromEntries(headers);
-  }
-
-  return { ...headers };
+interface GeneratePostRequest {
+  brandIdentityId: string;
+  contentType: string;
+  dataPoints?: {
+    includePullRequests?: boolean;
+    includeCommits?: boolean;
+    includeReleases?: boolean;
+    includeLinearData?: boolean;
+  };
+  integrations?: {
+    github?: string[];
+    linear?: string[];
+  };
+  lookbackWindow?: string;
 }
 
-export function getNotraRequestInit(init?: RequestInit): RequestInit {
+interface GeneratePostResponse {
+  job: GenerationJob;
+  organization: ApiOrganization;
+}
+
+interface PostGenerationStatusResponse {
+  events: GenerationEvent[];
+  job: GenerationJob;
+}
+
+export interface ListBrandIdentitiesResponse {
+  brandIdentities: BrandIdentity[];
+  organization: ApiOrganization;
+}
+
+export interface GetBrandIdentityResponse {
+  brandIdentity: BrandIdentity | null;
+  organization: ApiOrganization;
+}
+
+interface UpdateBrandIdentityRequest {
+  audience?: string | null;
+  companyDescription?: string | null;
+  companyName?: string | null;
+  customInstructions?: string | null;
+  customTone?: string | null;
+  isDefault?: boolean;
+  language?: string | null;
+  name?: string;
+  toneProfile?: string | null;
+  websiteUrl?: string;
+}
+
+interface DeleteBrandIdentityResponse {
+  id: string;
+  organization: ApiOrganization;
+}
+
+interface GenerateBrandIdentityRequest {
+  name?: string;
+  websiteUrl: string;
+}
+
+interface GenerateBrandIdentityResponse {
+  job: BrandIdentityGenerationJob;
+  organization: ApiOrganization;
+}
+
+interface BrandIdentityGenerationStatusResponse {
+  job: BrandIdentityGenerationJob;
+  organization: ApiOrganization;
+}
+
+export interface ListIntegrationsResponse {
+  github: GitHubIntegration[];
+  linear: LinearIntegration[];
+  organization: ApiOrganization;
+  slack: unknown[];
+}
+
+interface CreateGitHubIntegrationRequest {
+  branch?: string;
+  owner: string;
+  repo: string;
+  token?: string;
+}
+
+interface CreateGitHubIntegrationResponse {
+  github: GitHubIntegration;
+  organization: ApiOrganization;
+}
+
+interface NotraRequestInit extends Omit<RequestInit, "headers"> {
+  headers?: Record<string, string>;
+}
+
+export { NOTRA_API_URL };
+
+export function getNotraRequestInit(init?: NotraRequestInit): RequestInit {
   const { apiKey } = getPreferenceValues<{ apiKey: string }>();
-  const headers = normalizeHeaders(init?.headers);
 
   return {
     ...init,
     headers: {
-      ...headers,
+      ...init?.headers,
       Accept: "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
@@ -66,6 +155,7 @@ export function mapPost(post: ApiPost): Post {
   return {
     id: post.id,
     title: post.title,
+    slug: post.slug,
     content: post.content,
     markdown: post.markdown,
     recommendations: post.recommendations,
@@ -110,16 +200,22 @@ export function setCachedValue<T>(key: string, value: T): void {
   cache.set(key, JSON.stringify(value));
 }
 
-export function removeCachedValue(key: string): boolean {
+function removeCachedValue(key: string): boolean {
   return cache.remove(key);
 }
 
-export function clearNotraCache(): void {
+function clearNotraCache(): void {
   cache.clear();
 }
 
-async function notraRequest<T>(path: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(`${NOTRA_API_URL}${path}`, getNotraRequestInit(init));
+async function notraRequest<T>(
+  path: string,
+  init?: NotraRequestInit
+): Promise<T> {
+  const response = await fetch(
+    `${NOTRA_API_URL}${path}`,
+    getNotraRequestInit(init)
+  );
 
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
@@ -129,9 +225,7 @@ async function notraRequest<T>(path: string, init?: RequestInit): Promise<T> {
       if (error.error) {
         message = error.error;
       }
-    } catch {
-      // Ignore JSON parsing failures and use the default message.
-    }
+    } catch {}
 
     throw new Error(message);
   }
@@ -139,12 +233,13 @@ async function notraRequest<T>(path: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function updatePost(postId: string, input: UpdatePostRequest): Promise<PostDetails> {
+export async function updatePost(
+  postId: string,
+  input: UpdatePostRequest
+): Promise<PostDetails> {
   const response = await notraRequest<GetPostResponse>(`/v1/posts/${postId}`, {
     method: "PATCH",
-    headers: {
-      "Content-Type": "application/json",
-    },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify(input),
   });
 
@@ -155,11 +250,97 @@ export async function updatePost(postId: string, input: UpdatePostRequest): Prom
 }
 
 export async function deletePost(postId: string): Promise<DeletePostResponse> {
-  const response = await notraRequest<DeletePostResponse>(`/v1/posts/${postId}`, {
-    method: "DELETE",
-  });
+  const response = await notraRequest<DeletePostResponse>(
+    `/v1/posts/${postId}`,
+    {
+      method: "DELETE",
+    }
+  );
 
   clearNotraCache();
   removeCachedValue(getPostCacheKey(postId));
+  return response;
+}
+
+export async function generatePost(
+  input: GeneratePostRequest
+): Promise<GeneratePostResponse> {
+  return notraRequest<GeneratePostResponse>("/v1/posts/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+}
+
+export async function getPostGenerationStatus(
+  jobId: string
+): Promise<PostGenerationStatusResponse> {
+  return notraRequest<PostGenerationStatusResponse>(
+    `/v1/posts/generate/${jobId}`
+  );
+}
+
+export async function updateBrandIdentity(
+  id: string,
+  input: UpdateBrandIdentityRequest
+): Promise<GetBrandIdentityResponse> {
+  const response = await notraRequest<GetBrandIdentityResponse>(
+    `/v1/brand-identities/${id}`,
+    {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }
+  );
+  clearNotraCache();
+  return response;
+}
+
+export async function deleteBrandIdentity(
+  id: string
+): Promise<DeleteBrandIdentityResponse> {
+  const response = await notraRequest<DeleteBrandIdentityResponse>(
+    `/v1/brand-identities/${id}`,
+    {
+      method: "DELETE",
+    }
+  );
+  clearNotraCache();
+  return response;
+}
+
+export async function generateBrandIdentity(
+  input: GenerateBrandIdentityRequest
+): Promise<GenerateBrandIdentityResponse> {
+  return notraRequest<GenerateBrandIdentityResponse>(
+    "/v1/brand-identities/generate",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }
+  );
+}
+
+export async function getBrandIdentityGenerationStatus(
+  jobId: string
+): Promise<BrandIdentityGenerationStatusResponse> {
+  return notraRequest<BrandIdentityGenerationStatusResponse>(
+    `/v1/brand-identities/generate/${jobId}`
+  );
+}
+
+export async function createGitHubIntegration(
+  input: CreateGitHubIntegrationRequest
+): Promise<CreateGitHubIntegrationResponse> {
+  const response = await notraRequest<CreateGitHubIntegrationResponse>(
+    "/v1/integrations/github",
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(input),
+    }
+  );
+  clearNotraCache();
   return response;
 }

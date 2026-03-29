@@ -1,28 +1,39 @@
-import { Action, ActionPanel, Form, Toast, showToast, useNavigation } from "@raycast/api";
+import {
+  Action,
+  ActionPanel,
+  Form,
+  showToast,
+  Toast,
+  useNavigation,
+} from "@raycast/api";
 import { useState } from "react";
 import { updatePost } from "../lib/notra";
-import { NOTRA_APP_URL } from "../schemas";
+import { notraUrl } from "../schemas";
 import type { Post } from "../types";
 
 interface EditPostFormValues {
-  title: string;
   markdown: string;
+  slug?: string;
+  title: string;
 }
 
 interface EditPostFormProps {
-  post: Post;
   onPostUpdated?: () => Promise<void> | void;
+  post: Post;
 }
 
 export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
   const { pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
 
+  const supportsSlug =
+    post.contentType === "blog_post" || post.contentType === "changelog";
+
   async function handleSubmit(values: EditPostFormValues) {
     const title = values.title.trim();
     const markdown = values.markdown.trim();
 
-    if (!title || !markdown) {
+    if (!(title && markdown)) {
       await showToast({
         style: Toast.Style.Failure,
         title: "Title and content are required",
@@ -42,6 +53,7 @@ export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
         title,
         markdown,
         status: post.status,
+        ...(supportsSlug ? { slug: values.slug?.trim() || null } : {}),
       });
       await onPostUpdated?.();
       toast.style = Toast.Style.Success;
@@ -58,24 +70,42 @@ export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
 
   return (
     <Form
-      navigationTitle="Edit Post"
       actions={
         <ActionPanel>
-          <Action.SubmitForm title="Save Changes" onSubmit={handleSubmit} shortcut={{ modifiers: ["cmd"], key: "s" }} />
+          <Action.SubmitForm
+            onSubmit={handleSubmit}
+            shortcut={{ modifiers: ["cmd"], key: "s" }}
+            title="Save Changes"
+          />
           <Action.OpenInBrowser
-            title="Open in Notra"
-            url={`${NOTRA_APP_URL}/content/${post.id}`}
             shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
+            title="View on Notra"
+            url={notraUrl(`/content/${post.id}`)}
           />
         </ActionPanel>
       }
       isLoading={isLoading}
+      navigationTitle="Edit Post"
     >
-      <Form.TextField id="title" defaultValue={post.title} placeholder="Title" />
+      <Form.TextField
+        defaultValue={post.title}
+        id="title"
+        placeholder="Title"
+        title="Title"
+      />
+      {supportsSlug && (
+        <Form.TextField
+          defaultValue={post.slug ?? ""}
+          id="slug"
+          placeholder="my-post-slug (optional)"
+          title="Slug"
+        />
+      )}
       <Form.TextArea
-        id="markdown"
         defaultValue={post.markdown}
+        id="markdown"
         placeholder="Content"
+        title="Content"
       />
     </Form>
   );
