@@ -1,6 +1,6 @@
 import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
-import { CreateGitHubIntegrationForm } from "./components/CreateGitHubIntegrationForm";
-import { useIntegrations } from "./hooks/useIntegrations";
+import { CreateGitHubIntegrationForm } from "./components/create-git-hub-integration-form";
+import { useIntegrations } from "./hooks/use-integrations";
 import { notraUrl } from "./schemas";
 
 export default function Command() {

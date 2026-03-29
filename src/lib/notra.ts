@@ -220,12 +220,10 @@ async function notraRequest<T>(
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
 
-    try {
-      const error = (await response.json()) as { error?: string };
-      if (error.error) {
-        message = error.error;
-      }
-    } catch {}
+    const body = await response.json().catch(() => null);
+    if (body?.error) {
+      message = body.error;
+    }
 
     throw new Error(message);
   }
@@ -262,7 +260,7 @@ export async function deletePost(postId: string): Promise<DeletePostResponse> {
   return response;
 }
 
-export async function generatePost(
+export function generatePost(
   input: GeneratePostRequest
 ): Promise<GeneratePostResponse> {
   return notraRequest<GeneratePostResponse>("/v1/posts/generate", {
@@ -272,7 +270,7 @@ export async function generatePost(
   });
 }
 
-export async function getPostGenerationStatus(
+export function getPostGenerationStatus(
   jobId: string
 ): Promise<PostGenerationStatusResponse> {
   return notraRequest<PostGenerationStatusResponse>(
@@ -309,7 +307,7 @@ export async function deleteBrandIdentity(
   return response;
 }
 
-export async function generateBrandIdentity(
+export function generateBrandIdentity(
   input: GenerateBrandIdentityRequest
 ): Promise<GenerateBrandIdentityResponse> {
   return notraRequest<GenerateBrandIdentityResponse>(
@@ -322,7 +320,7 @@ export async function generateBrandIdentity(
   );
 }
 
-export async function getBrandIdentityGenerationStatus(
+export function getBrandIdentityGenerationStatus(
   jobId: string
 ): Promise<BrandIdentityGenerationStatusResponse> {
   return notraRequest<BrandIdentityGenerationStatusResponse>(

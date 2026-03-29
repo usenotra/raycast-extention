@@ -8,9 +8,9 @@ import {
   useNavigation,
 } from "@raycast/api";
 import { useState } from "react";
-import { GenerationStatus } from "./components/GenerationStatus";
-import { useBrandIdentities } from "./hooks/useBrandIdentities";
-import { useIntegrations } from "./hooks/useIntegrations";
+import { GenerationStatus } from "./components/generation-status";
+import { useBrandIdentities } from "./hooks/use-brand-identities";
+import { useIntegrations } from "./hooks/use-integrations";
 import { generatePost } from "./lib/notra";
 import { CONTENT_TYPE_OPTIONS, LOOKBACK_WINDOW_OPTIONS } from "./schemas";
 import type { ContentTypeValue } from "./types";

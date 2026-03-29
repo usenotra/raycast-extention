@@ -20,7 +20,7 @@ import {
 } from "../lib/notra";
 import { notraUrl } from "../schemas";
 import type { BrandIdentity } from "../types";
-import { EditBrandIdentityForm } from "./EditBrandIdentityForm";
+import { EditBrandIdentityForm } from "./edit-brand-identity-form";
 
 function buildMarkdown(bi: BrandIdentity): string {
   const lines: string[] = [];

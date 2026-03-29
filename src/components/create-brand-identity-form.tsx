@@ -9,7 +9,7 @@ import {
 } from "@raycast/api";
 import { useState } from "react";
 import { generateBrandIdentity } from "../lib/notra";
-import { GenerationStatus } from "./GenerationStatus";
+import { GenerationStatus } from "./generation-status";
 
 export function CreateBrandIdentityForm({
   onCreated,

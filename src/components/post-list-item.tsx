@@ -1,7 +1,7 @@
 import { Action, ActionPanel, Color, Icon, List } from "@raycast/api";
 import { CONTENT_TYPE_ICONS, CONTENT_TYPE_LABELS, notraUrl } from "../schemas";
 import type { Post } from "../types";
-import { PostDetail } from "./PostDetail";
+import { PostDetail } from "./post-detail";
 
 export function PostListItem({
   post,

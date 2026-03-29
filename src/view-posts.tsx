@@ -1,8 +1,8 @@
 import { List } from "@raycast/api";
 import { useState } from "react";
-import { ContentTypeDropdown } from "./components/ContentTypeDropdown";
-import { PostListItem } from "./components/PostListItem";
-import { usePosts } from "./hooks/usePosts";
+import { ContentTypeDropdown } from "./components/content-type-dropdown";
+import { PostListItem } from "./components/post-list-item";
+import { usePosts } from "./hooks/use-posts";
 import type { ContentTypeFilter } from "./types";
 
 export default function Command() {

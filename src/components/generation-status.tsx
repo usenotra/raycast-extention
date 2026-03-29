@@ -13,7 +13,7 @@ import {
 } from "../lib/notra";
 import { notraUrl } from "../schemas";
 import type { GenerationEvent, GenerationJobStatus } from "../types";
-import { BrandIdentityDetail } from "./BrandIdentityDetail";
+import { BrandIdentityDetail } from "./brand-identity-detail";
 
 interface PostGenerationStatusProps {
   jobId: string;
@@ -39,8 +39,37 @@ const STATUS_ICONS: Record<GenerationJobStatus, { icon: Icon; color: Color }> =
     failed: { icon: Icon.XMarkCircle, color: Color.Red },
   };
 
+const EVENT_ICONS: Record<string, string> = {
+  failed: "x",
+  completed: "v",
+};
+
 function formatEventType(type: string): string {
   return type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+async function fetchPostStatus(jobId: string) {
+  const result = await getPostGenerationStatus(jobId);
+  return {
+    status: result.job.status,
+    events: result.events,
+    error: result.job.error,
+    resultId: result.job.postId,
+  };
+}
+
+async function fetchBrandIdentityStatus(jobId: string) {
+  const result = await getBrandIdentityGenerationStatus(jobId);
+  return {
+    status: result.job.status,
+    events: [] as GenerationEvent[],
+    error: result.job.error,
+    resultId: result.job.brandIdentityId,
+  };
+}
+
+function isTerminal(s: GenerationJobStatus) {
+  return s === "completed" || s === "failed";
 }
 
 export function GenerationStatus({
@@ -61,48 +90,28 @@ export function GenerationStatus({
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
 
+    const fetcher =
+      type === "post" ? fetchPostStatus : fetchBrandIdentityStatus;
+
     async function poll() {
       try {
-        if (type === "post") {
-          const result = await getPostGenerationStatus(jobId);
-          if (cancelled) {
-            return;
+        const result = await fetcher(jobId);
+        if (cancelled) {
+          return;
+        }
+
+        setStatus(result.status);
+        setEvents(result.events);
+        setError(result.error);
+        setResultId(result.resultId);
+
+        if (isTerminal(result.status)) {
+          setIsLoading(false);
+          if (result.status === "completed" && !calledComplete.current) {
+            calledComplete.current = true;
+            onComplete?.();
           }
-          setStatus(result.job.status);
-          setEvents(result.events);
-          setError(result.job.error);
-          setResultId(result.job.postId);
-          if (
-            result.job.status === "completed" ||
-            result.job.status === "failed"
-          ) {
-            setIsLoading(false);
-            if (result.job.status === "completed" && !calledComplete.current) {
-              calledComplete.current = true;
-              onComplete?.();
-            }
-            return;
-          }
-        } else {
-          const result = await getBrandIdentityGenerationStatus(jobId);
-          if (cancelled) {
-            return;
-          }
-          setStatus(result.job.status);
-          setEvents([]);
-          setError(result.job.error);
-          setResultId(result.job.brandIdentityId);
-          if (
-            result.job.status === "completed" ||
-            result.job.status === "failed"
-          ) {
-            setIsLoading(false);
-            if (result.job.status === "completed" && !calledComplete.current) {
-              calledComplete.current = true;
-              onComplete?.();
-            }
-            return;
-          }
+          return;
         }
         timeoutId = setTimeout(poll, 2000);
       } catch {
@@ -153,8 +162,7 @@ export function GenerationStatus({
   if (events.length > 0) {
     markdown += "\n---\n\n### Steps\n\n";
     for (const event of events) {
-      const icon =
-        event.type === "failed" ? "x" : event.type === "completed" ? "v" : "·";
+      const icon = EVENT_ICONS[event.type] ?? "·";
       markdown += `${icon} **${formatEventType(event.type)}** — ${event.message}\n\n`;
     }
   }

@@ -10,10 +10,10 @@ import {
   Toast,
   useNavigation,
 } from "@raycast/api";
-import { usePost } from "../hooks/usePost";
+import { usePost } from "../hooks/use-post";
 import { deletePost, updatePost } from "../lib/notra";
 import { CONTENT_TYPE_LABELS, notraUrl } from "../schemas";
-import { EditPostForm } from "./EditPostForm";
+import { EditPostForm } from "./edit-post-form";
 
 export function PostDetail({
   postId,
