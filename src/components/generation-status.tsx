@@ -1,16 +1,6 @@
-import {
-  Action,
-  ActionPanel,
-  Color,
-  Detail,
-  Icon,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Color, Detail, Icon, useNavigation } from "@raycast/api";
 import { useEffect, useRef, useState } from "react";
-import {
-  getBrandIdentityGenerationStatus,
-  getPostGenerationStatus,
-} from "../lib/notra";
+import { getBrandIdentityGenerationStatus, getPostGenerationStatus } from "../lib/notra";
 import { notraUrl } from "../schemas";
 import type { GenerationEvent, GenerationJobStatus } from "../types";
 import { BrandIdentityDetail } from "./brand-identity-detail";
@@ -27,17 +17,14 @@ interface BrandIdentityGenerationStatusProps {
   type: "brand-identity";
 }
 
-type GenerationStatusProps =
-  | PostGenerationStatusProps
-  | BrandIdentityGenerationStatusProps;
+type GenerationStatusProps = PostGenerationStatusProps | BrandIdentityGenerationStatusProps;
 
-const STATUS_ICONS: Record<GenerationJobStatus, { icon: Icon; color: Color }> =
-  {
-    queued: { icon: Icon.Clock, color: Color.SecondaryText },
-    running: { icon: Icon.CircleProgress50, color: Color.Blue },
-    completed: { icon: Icon.CheckCircle, color: Color.Green },
-    failed: { icon: Icon.XMarkCircle, color: Color.Red },
-  };
+const STATUS_ICONS: Record<GenerationJobStatus, { icon: Icon; color: Color }> = {
+  queued: { icon: Icon.Clock, color: Color.SecondaryText },
+  running: { icon: Icon.CircleProgress50, color: Color.Blue },
+  completed: { icon: Icon.CheckCircle, color: Color.Green },
+  failed: { icon: Icon.XMarkCircle, color: Color.Red },
+};
 
 const EVENT_ICONS: Record<string, string> = {
   failed: "x",
@@ -72,11 +59,7 @@ function isTerminal(s: GenerationJobStatus) {
   return s === "completed" || s === "failed";
 }
 
-export function GenerationStatus({
-  type,
-  jobId,
-  onComplete,
-}: GenerationStatusProps) {
+export function GenerationStatus({ type, jobId, onComplete }: GenerationStatusProps) {
   const { push } = useNavigation();
   const [status, setStatus] = useState<GenerationJobStatus>("queued");
   const [events, setEvents] = useState<GenerationEvent[]>([]);
@@ -90,8 +73,7 @@ export function GenerationStatus({
     let cancelled = false;
     let timeoutId: ReturnType<typeof setTimeout>;
 
-    const fetcher =
-      type === "post" ? fetchPostStatus : fetchBrandIdentityStatus;
+    const fetcher = type === "post" ? fetchPostStatus : fetchBrandIdentityStatus;
 
     async function poll() {
       try {
@@ -132,20 +114,14 @@ export function GenerationStatus({
   }, [jobId, type, onComplete]);
 
   useEffect(() => {
-    if (
-      type === "brand-identity" &&
-      status === "completed" &&
-      resultId &&
-      !didNavigate.current
-    ) {
+    if (type === "brand-identity" && status === "completed" && resultId && !didNavigate.current) {
       didNavigate.current = true;
       push(<BrandIdentityDetail brandIdentityId={resultId} />);
     }
   }, [type, status, resultId, push]);
 
   const statusInfo = STATUS_ICONS[status];
-  const title =
-    type === "post" ? "Post Generation" : "Brand Identity Generation";
+  const title = type === "post" ? "Post Generation" : "Brand Identity Generation";
 
   let markdown = `# ${title}\n\n`;
 
@@ -172,18 +148,10 @@ export function GenerationStatus({
       actions={
         <ActionPanel>
           {status === "completed" && resultId && type === "post" && (
-            <Action.OpenInBrowser
-              icon={Icon.Globe}
-              title="View on Notra"
-              url={notraUrl(`/content/${resultId}`)}
-            />
+            <Action.OpenInBrowser icon={Icon.Globe} title="View on Notra" url={notraUrl(`/content/${resultId}`)} />
           )}
           {status === "completed" && type === "brand-identity" && (
-            <Action.OpenInBrowser
-              icon={Icon.Globe}
-              title="View on Notra"
-              url={notraUrl("/settings/brand")}
-            />
+            <Action.OpenInBrowser icon={Icon.Globe} title="View on Notra" url={notraUrl("/settings/brand")} />
           )}
           <Action.CopyToClipboard content={jobId} title="Copy Job ID" />
         </ActionPanel>

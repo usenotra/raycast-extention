@@ -1,18 +1,10 @@
-export type ContentTypeValue =
-  | "changelog"
-  | "linkedin_post"
-  | "twitter_post"
-  | "blog_post";
+export type ContentTypeValue = "changelog" | "linkedin_post" | "twitter_post" | "blog_post";
 
 export type ContentTypeFilter = ContentTypeValue | "all";
 
 export type PostStatus = "draft" | "published";
 
-export type ToneProfile =
-  | "Conversational"
-  | "Professional"
-  | "Casual"
-  | "Formal";
+export type ToneProfile = "Conversational" | "Professional" | "Casual" | "Formal";
 
 export type GenerationJobStatus = "queued" | "running" | "completed" | "failed";
 

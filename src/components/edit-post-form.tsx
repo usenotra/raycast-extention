@@ -1,11 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  Form,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Form, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { updatePost } from "../lib/notra";
 import { notraUrl } from "../schemas";
@@ -26,8 +19,7 @@ export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
   const { pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
 
-  const supportsSlug =
-    post.contentType === "blog_post" || post.contentType === "changelog";
+  const supportsSlug = post.contentType === "blog_post" || post.contentType === "changelog";
 
   async function handleSubmit(values: EditPostFormValues) {
     const title = values.title.trim();
@@ -72,11 +64,7 @@ export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            onSubmit={handleSubmit}
-            shortcut={{ modifiers: ["cmd"], key: "s" }}
-            title="Save Changes"
-          />
+          <Action.SubmitForm onSubmit={handleSubmit} shortcut={{ modifiers: ["cmd"], key: "s" }} title="Save Changes" />
           <Action.OpenInBrowser
             shortcut={{ modifiers: ["cmd", "shift"], key: "o" }}
             title="View on Notra"
@@ -87,26 +75,11 @@ export function EditPostForm({ post, onPostUpdated }: EditPostFormProps) {
       isLoading={isLoading}
       navigationTitle="Edit Post"
     >
-      <Form.TextField
-        defaultValue={post.title}
-        id="title"
-        placeholder="Title"
-        title="Title"
-      />
+      <Form.TextField defaultValue={post.title} id="title" placeholder="Title" title="Title" />
       {supportsSlug && (
-        <Form.TextField
-          defaultValue={post.slug ?? ""}
-          id="slug"
-          placeholder="my-post-slug (optional)"
-          title="Slug"
-        />
+        <Form.TextField defaultValue={post.slug ?? ""} id="slug" placeholder="my-post-slug (optional)" title="Slug" />
       )}
-      <Form.TextArea
-        defaultValue={post.markdown}
-        id="markdown"
-        placeholder="Content"
-        title="Content"
-      />
+      <Form.TextArea defaultValue={post.markdown} id="markdown" placeholder="Content" title="Content" />
     </Form>
   );
 }

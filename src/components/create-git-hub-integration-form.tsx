@@ -1,28 +1,12 @@
-import {
-  Action,
-  ActionPanel,
-  Form,
-  Icon,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { createGitHubIntegration } from "../lib/notra";
 
-export function CreateGitHubIntegrationForm({
-  onCreated,
-}: {
-  onCreated?: () => Promise<void> | void;
-}) {
+export function CreateGitHubIntegrationForm({ onCreated }: { onCreated?: () => Promise<void> | void }) {
   const { pop } = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  async function handleSubmit(values: {
-    owner: string;
-    repo: string;
-    branch: string;
-  }) {
+  async function handleSubmit(values: { owner: string; repo: string; branch: string }) {
     const owner = values.owner.trim();
     const repo = values.repo.trim();
     if (!(owner && repo)) {
@@ -62,32 +46,15 @@ export function CreateGitHubIntegrationForm({
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            icon={Icon.Plus}
-            onSubmit={handleSubmit}
-            title="Create Integration"
-          />
+          <Action.SubmitForm icon={Icon.Plus} onSubmit={handleSubmit} title="Create Integration" />
         </ActionPanel>
       }
       isLoading={isSubmitting}
       navigationTitle="Create GitHub Integration"
     >
-      <Form.TextField
-        id="owner"
-        placeholder="Organization or username"
-        title="Owner"
-      />
-      <Form.TextField
-        id="repo"
-        placeholder="Repository name"
-        title="Repository"
-      />
-      <Form.TextField
-        defaultValue=""
-        id="branch"
-        placeholder="Default branch (optional)"
-        title="Branch"
-      />
+      <Form.TextField id="owner" placeholder="Organization or username" title="Owner" />
+      <Form.TextField id="repo" placeholder="Repository name" title="Repository" />
+      <Form.TextField defaultValue="" id="branch" placeholder="Default branch (optional)" title="Branch" />
     </Form>
   );
 }

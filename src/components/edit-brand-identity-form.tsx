@@ -1,11 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  Form,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Form, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { updateBrandIdentity } from "../lib/notra";
 import { TONE_PROFILE_OPTIONS } from "../schemas";
@@ -28,10 +21,7 @@ interface EditBrandIdentityFormProps {
   onUpdated?: () => Promise<void> | void;
 }
 
-export function EditBrandIdentityForm({
-  brandIdentity,
-  onUpdated,
-}: EditBrandIdentityFormProps) {
+export function EditBrandIdentityForm({ brandIdentity, onUpdated }: EditBrandIdentityFormProps) {
   const { pop } = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -86,12 +76,7 @@ export function EditBrandIdentityForm({
       isLoading={isLoading}
       navigationTitle="Edit Brand Identity"
     >
-      <Form.TextField
-        defaultValue={brandIdentity.name}
-        id="name"
-        placeholder="Brand identity name"
-        title="Name"
-      />
+      <Form.TextField defaultValue={brandIdentity.name} id="name" placeholder="Brand identity name" title="Name" />
       <Form.TextField
         defaultValue={brandIdentity.websiteUrl}
         id="websiteUrl"
@@ -113,18 +98,10 @@ export function EditBrandIdentityForm({
 
       <Form.Separator />
 
-      <Form.Dropdown
-        defaultValue={brandIdentity.toneProfile ?? ""}
-        id="toneProfile"
-        title="Tone Profile"
-      >
+      <Form.Dropdown defaultValue={brandIdentity.toneProfile ?? ""} id="toneProfile" title="Tone Profile">
         <Form.Dropdown.Item title="None" value="" />
         {TONE_PROFILE_OPTIONS.map((option) => (
-          <Form.Dropdown.Item
-            key={option.value}
-            title={option.title}
-            value={option.value}
-          />
+          <Form.Dropdown.Item key={option.value} title={option.title} value={option.value} />
         ))}
       </Form.Dropdown>
       <Form.TextField

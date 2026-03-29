@@ -7,12 +7,7 @@ import type { ContentTypeFilter } from "./types";
 
 export default function Command() {
   const [contentType, setContentType] = useState<ContentTypeFilter>("all");
-  const {
-    data: posts,
-    isLoading,
-    pagination,
-    revalidate,
-  } = usePosts(contentType);
+  const { data: posts, isLoading, pagination, revalidate } = usePosts(contentType);
 
   return (
     <List
@@ -21,10 +16,7 @@ export default function Command() {
       searchBarAccessory={<ContentTypeDropdown onChange={setContentType} />}
       searchBarPlaceholder="Search posts..."
     >
-      <List.EmptyView
-        description="Try changing the content type filter."
-        title="No Posts Found"
-      />
+      <List.EmptyView description="Try changing the content type filter." title="No Posts Found" />
       {posts?.map((post) => (
         <PostListItem key={post.id} onPostMutated={revalidate} post={post} />
       ))}

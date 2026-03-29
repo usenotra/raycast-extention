@@ -44,6 +44,6 @@ export function usePosts(contentType: ContentTypeFilter) {
           hasMore: result.pagination.nextPage !== null,
         };
       },
-    }
+    },
   );
 }

@@ -21,11 +21,7 @@ export default function Command() {
                 target={<CreateGitHubIntegrationForm onCreated={revalidate} />}
                 title="Create GitHub Integration"
               />
-              <Action.OpenInBrowser
-                icon={Icon.Globe}
-                title="View on Notra"
-                url={notraUrl("/settings/integrations")}
-              />
+              <Action.OpenInBrowser icon={Icon.Globe} title="View on Notra" url={notraUrl("/settings/integrations")} />
             </ActionPanel>
           }
           description="Add a GitHub repository to get started."
@@ -41,10 +37,7 @@ export default function Command() {
               actions={
                 <ActionPanel>
                   {gh.owner && gh.repo && (
-                    <Action.OpenInBrowser
-                      title="Open on GitHub"
-                      url={`https://github.com/${gh.owner}/${gh.repo}`}
-                    />
+                    <Action.OpenInBrowser title="Open on GitHub" url={`https://github.com/${gh.owner}/${gh.repo}`} />
                   )}
                   <Action.OpenInBrowser
                     icon={Icon.Globe}
@@ -52,25 +45,18 @@ export default function Command() {
                     title="View on Notra"
                     url={notraUrl("/settings/integrations")}
                   />
-                  <Action.CopyToClipboard
-                    content={gh.displayName}
-                    title="Copy Display Name"
-                  />
+                  <Action.CopyToClipboard content={gh.displayName} title="Copy Display Name" />
                   <Action.Push
                     icon={Icon.Plus}
                     shortcut={{ modifiers: ["cmd"], key: "n" }}
-                    target={
-                      <CreateGitHubIntegrationForm onCreated={revalidate} />
-                    }
+                    target={<CreateGitHubIntegrationForm onCreated={revalidate} />}
                     title="Create GitHub Integration"
                   />
                 </ActionPanel>
               }
               icon={Icon.Code}
               key={gh.id}
-              subtitle={
-                gh.defaultBranch ? `Branch: ${gh.defaultBranch}` : undefined
-              }
+              subtitle={gh.defaultBranch ? `Branch: ${gh.defaultBranch}` : undefined}
               title={gh.displayName}
             />
           ))}
@@ -90,17 +76,12 @@ export default function Command() {
                     title="Manage on Notra"
                     url={notraUrl("/settings/integrations")}
                   />
-                  <Action.CopyToClipboard
-                    content={ln.displayName}
-                    title="Copy Display Name"
-                  />
+                  <Action.CopyToClipboard content={ln.displayName} title="Copy Display Name" />
                 </ActionPanel>
               }
               icon={Icon.List}
               key={ln.id}
-              subtitle={
-                ln.linearTeamName ?? ln.linearOrganizationName ?? undefined
-              }
+              subtitle={ln.linearTeamName ?? ln.linearOrganizationName ?? undefined}
               title={ln.displayName}
             />
           ))}

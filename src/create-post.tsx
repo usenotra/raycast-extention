@@ -1,12 +1,4 @@
-import {
-  Action,
-  ActionPanel,
-  Form,
-  Icon,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { GenerationStatus } from "./components/generation-status";
 import { useBrandIdentities } from "./hooks/use-brand-identities";
@@ -30,10 +22,8 @@ interface GeneratePostFormValues {
 export default function Command() {
   const { push } = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const { data: brandIdentities, isLoading: loadingBrands } =
-    useBrandIdentities();
-  const { data: integrations, isLoading: loadingIntegrations } =
-    useIntegrations();
+  const { data: brandIdentities, isLoading: loadingBrands } = useBrandIdentities();
+  const { data: integrations, isLoading: loadingIntegrations } = useIntegrations();
 
   const isLoading = loadingBrands || loadingIntegrations;
 
@@ -83,65 +73,35 @@ export default function Command() {
     }
   }
 
-  const contentTypeOptions = CONTENT_TYPE_OPTIONS.filter(
-    (o) => o.value !== "all"
-  );
+  const contentTypeOptions = CONTENT_TYPE_OPTIONS.filter((o) => o.value !== "all");
   const githubIntegrations = integrations?.github ?? [];
   const linearIntegrations = integrations?.linear ?? [];
-  const defaultBrandIdentity = (brandIdentities ?? []).find(
-    (bi) => bi.isDefault
-  );
-  const defaultBrandIdentityId =
-    defaultBrandIdentity?.id ?? (brandIdentities ?? [])[0]?.id ?? "";
+  const defaultBrandIdentity = (brandIdentities ?? []).find((bi) => bi.isDefault);
+  const defaultBrandIdentityId = defaultBrandIdentity?.id ?? (brandIdentities ?? [])[0]?.id ?? "";
 
   return (
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            icon={Icon.Stars}
-            onSubmit={handleSubmit}
-            title="Create Content"
-          />
+          <Action.SubmitForm icon={Icon.Stars} onSubmit={handleSubmit} title="Create Content" />
         </ActionPanel>
       }
       isLoading={isLoading || isSubmitting}
       navigationTitle="Create Content"
     >
-      <Form.Dropdown
-        defaultValue="changelog"
-        id="contentType"
-        title="Content Type"
-      >
+      <Form.Dropdown defaultValue="changelog" id="contentType" title="Content Type">
         {contentTypeOptions.map((option) => (
-          <Form.Dropdown.Item
-            icon={option.icon}
-            key={option.value}
-            title={option.title}
-            value={option.value}
-          />
+          <Form.Dropdown.Item icon={option.icon} key={option.value} title={option.title} value={option.value} />
         ))}
       </Form.Dropdown>
 
-      <Form.Dropdown
-        defaultValue="last_7_days"
-        id="lookbackWindow"
-        title="Lookback Window"
-      >
+      <Form.Dropdown defaultValue="last_7_days" id="lookbackWindow" title="Lookback Window">
         {LOOKBACK_WINDOW_OPTIONS.map((option) => (
-          <Form.Dropdown.Item
-            key={option.value}
-            title={option.title}
-            value={option.value}
-          />
+          <Form.Dropdown.Item key={option.value} title={option.title} value={option.value} />
         ))}
       </Form.Dropdown>
 
-      <Form.Dropdown
-        defaultValue={defaultBrandIdentityId}
-        id="brandIdentityId"
-        title="Brand Identity"
-      >
+      <Form.Dropdown defaultValue={defaultBrandIdentityId} id="brandIdentityId" title="Brand Identity">
         {(brandIdentities ?? []).map((bi) => (
           <Form.Dropdown.Item
             icon={Icon.Person}
@@ -157,12 +117,7 @@ export default function Command() {
       {githubIntegrations.length > 0 && (
         <Form.TagPicker id="githubIntegrations" title="GitHub Repos">
           {githubIntegrations.map((gh) => (
-            <Form.TagPicker.Item
-              icon={Icon.Code}
-              key={gh.id}
-              title={gh.displayName}
-              value={gh.id}
-            />
+            <Form.TagPicker.Item icon={Icon.Code} key={gh.id} title={gh.displayName} value={gh.id} />
           ))}
         </Form.TagPicker>
       )}
@@ -170,38 +125,17 @@ export default function Command() {
       {linearIntegrations.length > 0 && (
         <Form.TagPicker id="linearIntegrations" title="Linear Teams">
           {linearIntegrations.map((ln) => (
-            <Form.TagPicker.Item
-              icon={Icon.List}
-              key={ln.id}
-              title={ln.displayName}
-              value={ln.id}
-            />
+            <Form.TagPicker.Item icon={Icon.List} key={ln.id} title={ln.displayName} value={ln.id} />
           ))}
         </Form.TagPicker>
       )}
 
       <Form.Separator />
 
-      <Form.Checkbox
-        defaultValue={true}
-        id="includePullRequests"
-        label="Include Pull Requests"
-      />
-      <Form.Checkbox
-        defaultValue={true}
-        id="includeCommits"
-        label="Include Commits"
-      />
-      <Form.Checkbox
-        defaultValue={true}
-        id="includeReleases"
-        label="Include Releases"
-      />
-      <Form.Checkbox
-        defaultValue={false}
-        id="includeLinearData"
-        label="Include Linear Data"
-      />
+      <Form.Checkbox defaultValue={true} id="includePullRequests" label="Include Pull Requests" />
+      <Form.Checkbox defaultValue={true} id="includeCommits" label="Include Commits" />
+      <Form.Checkbox defaultValue={true} id="includeReleases" label="Include Releases" />
+      <Form.Checkbox defaultValue={false} id="includeLinearData" label="Include Linear Data" />
     </Form>
   );
 }

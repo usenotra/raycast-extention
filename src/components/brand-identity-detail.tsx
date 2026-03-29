@@ -12,12 +12,7 @@ import {
 } from "@raycast/api";
 import { useFetch } from "@raycast/utils";
 import type { GetBrandIdentityResponse } from "../lib/notra";
-import {
-  deleteBrandIdentity,
-  getNotraRequestInit,
-  NOTRA_API_URL,
-  updateBrandIdentity,
-} from "../lib/notra";
+import { deleteBrandIdentity, getNotraRequestInit, NOTRA_API_URL, updateBrandIdentity } from "../lib/notra";
 import { notraUrl } from "../schemas";
 import type { BrandIdentity } from "../types";
 import { EditBrandIdentityForm } from "./edit-brand-identity-form";
@@ -153,12 +148,7 @@ export function BrandIdentityDetail({
               <Action.Push
                 icon={Icon.Pencil}
                 shortcut={{ modifiers: ["cmd"], key: "e" }}
-                target={
-                  <EditBrandIdentityForm
-                    brandIdentity={bi}
-                    onUpdated={handleRefresh}
-                  />
-                }
+                target={<EditBrandIdentityForm brandIdentity={bi} onUpdated={handleRefresh} />}
                 title="Edit Brand Identity"
               />
               {!bi.isDefault && (
@@ -201,43 +191,20 @@ export function BrandIdentityDetail({
         bi ? (
           <Detail.Metadata>
             <Detail.Metadata.TagList title="Status">
-              {bi.isDefault && (
-                <Detail.Metadata.TagList.Item
-                  color={Color.Green}
-                  text="Default"
-                />
-              )}
+              {bi.isDefault && <Detail.Metadata.TagList.Item color={Color.Green} text="Default" />}
               <Detail.Metadata.TagList.Item
                 color={bi.toneProfile ? Color.Blue : Color.SecondaryText}
                 text={bi.toneProfile ?? "No tone"}
               />
             </Detail.Metadata.TagList>
-            <Detail.Metadata.Link
-              target={bi.websiteUrl}
-              text={bi.websiteUrl}
-              title="Website"
-            />
-            {bi.companyName && (
-              <Detail.Metadata.Label text={bi.companyName} title="Company" />
-            )}
-            {bi.audience && (
-              <Detail.Metadata.Label text={bi.audience} title="Audience" />
-            )}
-            {bi.language && (
-              <Detail.Metadata.Label text={bi.language} title="Language" />
-            )}
-            {bi.customTone && (
-              <Detail.Metadata.Label text={bi.customTone} title="Custom Tone" />
-            )}
+            <Detail.Metadata.Link target={bi.websiteUrl} text={bi.websiteUrl} title="Website" />
+            {bi.companyName && <Detail.Metadata.Label text={bi.companyName} title="Company" />}
+            {bi.audience && <Detail.Metadata.Label text={bi.audience} title="Audience" />}
+            {bi.language && <Detail.Metadata.Label text={bi.language} title="Language" />}
+            {bi.customTone && <Detail.Metadata.Label text={bi.customTone} title="Custom Tone" />}
             <Detail.Metadata.Separator />
-            <Detail.Metadata.Label
-              text={new Date(bi.createdAt).toLocaleDateString()}
-              title="Created"
-            />
-            <Detail.Metadata.Label
-              text={new Date(bi.updatedAt).toLocaleDateString()}
-              title="Updated"
-            />
+            <Detail.Metadata.Label text={new Date(bi.createdAt).toLocaleDateString()} title="Created" />
+            <Detail.Metadata.Label text={new Date(bi.updatedAt).toLocaleDateString()} title="Updated" />
           </Detail.Metadata>
         ) : null
       }

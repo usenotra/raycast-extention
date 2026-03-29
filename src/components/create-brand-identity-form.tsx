@@ -1,21 +1,9 @@
-import {
-  Action,
-  ActionPanel,
-  Form,
-  Icon,
-  showToast,
-  Toast,
-  useNavigation,
-} from "@raycast/api";
+import { Action, ActionPanel, Form, Icon, showToast, Toast, useNavigation } from "@raycast/api";
 import { useState } from "react";
 import { generateBrandIdentity } from "../lib/notra";
 import { GenerationStatus } from "./generation-status";
 
-export function CreateBrandIdentityForm({
-  onCreated,
-}: {
-  onCreated?: () => Promise<void> | void;
-}) {
+export function CreateBrandIdentityForm({ onCreated }: { onCreated?: () => Promise<void> | void }) {
   const { push } = useNavigation();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,7 +37,7 @@ export function CreateBrandIdentityForm({
             onCreated?.();
           }}
           type="brand-identity"
-        />
+        />,
       );
     } catch (error) {
       toast.style = Toast.Style.Failure;
@@ -64,28 +52,15 @@ export function CreateBrandIdentityForm({
     <Form
       actions={
         <ActionPanel>
-          <Action.SubmitForm
-            icon={Icon.Stars}
-            onSubmit={handleSubmit}
-            title="Create Brand Identity"
-          />
+          <Action.SubmitForm icon={Icon.Stars} onSubmit={handleSubmit} title="Create Brand Identity" />
         </ActionPanel>
       }
       isLoading={isSubmitting}
       navigationTitle="Create Brand Identity"
     >
       <Form.Description text="We'll analyze your website to generate a brand identity with tone, audience, and style." />
-      <Form.TextField
-        id="websiteUrl"
-        placeholder="https://example.com"
-        title="Website URL"
-      />
-      <Form.TextField
-        defaultValue=""
-        id="name"
-        placeholder="Brand identity name (optional)"
-        title="Name"
-      />
+      <Form.TextField id="websiteUrl" placeholder="https://example.com" title="Website URL" />
+      <Form.TextField defaultValue="" id="name" placeholder="Brand identity name (optional)" title="Name" />
     </Form>
   );
 }

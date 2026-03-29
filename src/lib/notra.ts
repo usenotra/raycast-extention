@@ -208,14 +208,8 @@ function clearNotraCache(): void {
   cache.clear();
 }
 
-async function notraRequest<T>(
-  path: string,
-  init?: NotraRequestInit
-): Promise<T> {
-  const response = await fetch(
-    `${NOTRA_API_URL}${path}`,
-    getNotraRequestInit(init)
-  );
+async function notraRequest<T>(path: string, init?: NotraRequestInit): Promise<T> {
+  const response = await fetch(`${NOTRA_API_URL}${path}`, getNotraRequestInit(init));
 
   if (!response.ok) {
     let message = `Request failed with status ${response.status}`;
@@ -231,10 +225,7 @@ async function notraRequest<T>(
   return (await response.json()) as T;
 }
 
-export async function updatePost(
-  postId: string,
-  input: UpdatePostRequest
-): Promise<PostDetails> {
+export async function updatePost(postId: string, input: UpdatePostRequest): Promise<PostDetails> {
   const response = await notraRequest<GetPostResponse>(`/v1/posts/${postId}`, {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
@@ -248,21 +239,16 @@ export async function updatePost(
 }
 
 export async function deletePost(postId: string): Promise<DeletePostResponse> {
-  const response = await notraRequest<DeletePostResponse>(
-    `/v1/posts/${postId}`,
-    {
-      method: "DELETE",
-    }
-  );
+  const response = await notraRequest<DeletePostResponse>(`/v1/posts/${postId}`, {
+    method: "DELETE",
+  });
 
   clearNotraCache();
   removeCachedValue(getPostCacheKey(postId));
   return response;
 }
 
-export function generatePost(
-  input: GeneratePostRequest
-): Promise<GeneratePostResponse> {
+export function generatePost(input: GeneratePostRequest): Promise<GeneratePostResponse> {
   return notraRequest<GeneratePostResponse>("/v1/posts/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -270,75 +256,51 @@ export function generatePost(
   });
 }
 
-export function getPostGenerationStatus(
-  jobId: string
-): Promise<PostGenerationStatusResponse> {
-  return notraRequest<PostGenerationStatusResponse>(
-    `/v1/posts/generate/${jobId}`
-  );
+export function getPostGenerationStatus(jobId: string): Promise<PostGenerationStatusResponse> {
+  return notraRequest<PostGenerationStatusResponse>(`/v1/posts/generate/${jobId}`);
 }
 
 export async function updateBrandIdentity(
   id: string,
-  input: UpdateBrandIdentityRequest
+  input: UpdateBrandIdentityRequest,
 ): Promise<GetBrandIdentityResponse> {
-  const response = await notraRequest<GetBrandIdentityResponse>(
-    `/v1/brand-identities/${id}`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    }
-  );
+  const response = await notraRequest<GetBrandIdentityResponse>(`/v1/brand-identities/${id}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
   clearNotraCache();
   return response;
 }
 
-export async function deleteBrandIdentity(
-  id: string
-): Promise<DeleteBrandIdentityResponse> {
-  const response = await notraRequest<DeleteBrandIdentityResponse>(
-    `/v1/brand-identities/${id}`,
-    {
-      method: "DELETE",
-    }
-  );
+export async function deleteBrandIdentity(id: string): Promise<DeleteBrandIdentityResponse> {
+  const response = await notraRequest<DeleteBrandIdentityResponse>(`/v1/brand-identities/${id}`, {
+    method: "DELETE",
+  });
   clearNotraCache();
   return response;
 }
 
-export function generateBrandIdentity(
-  input: GenerateBrandIdentityRequest
-): Promise<GenerateBrandIdentityResponse> {
-  return notraRequest<GenerateBrandIdentityResponse>(
-    "/v1/brand-identities/generate",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    }
-  );
+export function generateBrandIdentity(input: GenerateBrandIdentityRequest): Promise<GenerateBrandIdentityResponse> {
+  return notraRequest<GenerateBrandIdentityResponse>("/v1/brand-identities/generate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
 }
 
-export function getBrandIdentityGenerationStatus(
-  jobId: string
-): Promise<BrandIdentityGenerationStatusResponse> {
-  return notraRequest<BrandIdentityGenerationStatusResponse>(
-    `/v1/brand-identities/generate/${jobId}`
-  );
+export function getBrandIdentityGenerationStatus(jobId: string): Promise<BrandIdentityGenerationStatusResponse> {
+  return notraRequest<BrandIdentityGenerationStatusResponse>(`/v1/brand-identities/generate/${jobId}`);
 }
 
 export async function createGitHubIntegration(
-  input: CreateGitHubIntegrationRequest
+  input: CreateGitHubIntegrationRequest,
 ): Promise<CreateGitHubIntegrationResponse> {
-  const response = await notraRequest<CreateGitHubIntegrationResponse>(
-    "/v1/integrations/github",
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(input),
-    }
-  );
+  const response = await notraRequest<CreateGitHubIntegrationResponse>("/v1/integrations/github", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
   clearNotraCache();
   return response;
 }
