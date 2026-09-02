@@ -1,15 +1,16 @@
 # Notra
 
-View, manage, and create content with [Notra](https://www.usenotra.com) directly from Raycast.
+View GEO analytics, manage content, and create content with [Notra](https://www.usenotra.com) directly from Raycast.
 
 ## Setup
 
 1. Sign in to your account at [app.usenotra.com](https://app.usenotra.com)
-2. Navigate to the `API Keys` page and create an API key with read & write permissions
+2. Navigate to the `API Keys` page and create an organization-scoped API key with read and write permissions
 3. Open any Notra command in Raycast and enter your API key when prompted
 
 ## Commands
 
+- **View GEO Analytics** - Explore visibility, competitors, prompts, content gaps, briefs, agent readiness, scans, settings, and AI traffic across your GEO projects
 - **List Posts** — Browse and manage your posts
 - **Create Content** — Create a new post using AI
 - **List Brand Identities** — Browse and manage your brand identities
