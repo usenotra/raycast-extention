@@ -183,27 +183,29 @@ export async function notraRequest<T>(path: string, init?: NotraRequestInit): Pr
 export async function getGeoDashboard(projectId: string, days: number): Promise<GeoDashboardData> {
   const projectPath = `/v1/projects/${encodeURIComponent(projectId)}/geo`;
   const window = `days=${days}`;
+  const signal = AbortSignal.timeout(15_000);
+  const request = <T>(path: string) => notraRequest<T>(path, { signal });
   const results = await Promise.allSettled([
-    notraRequest<GeoSettingsResponse>(`${projectPath}/settings`),
-    notraRequest<GeoVisibilityOverviewResponse>(`${projectPath}/visibility/overview?${window}`),
-    notraRequest<GeoVisibilityTimeseriesResponse>(`${projectPath}/visibility/timeseries?${window}`),
-    notraRequest<GeoCompetitorShareResponse>(`${projectPath}/visibility/competitor-share?${window}`),
-    notraRequest<GeoLanguageShareResponse>(`${projectPath}/visibility/language-share?${window}`),
-    notraRequest<GeoPromptResultsResponse>(`${projectPath}/visibility/prompt-results?${window}`),
-    notraRequest<GeoTrafficOverviewResponse>(`${projectPath}/traffic/overview?${window}`),
-    notraRequest<GeoPromptsResponse>(`${projectPath}/prompts`),
-    notraRequest<GeoSequencesResponse>(`${projectPath}/sequences`),
-    notraRequest<GeoCompetitorsResponse>(`${projectPath}/competitors`),
-    notraRequest<GeoContentGapsResponse>(`${projectPath}/gaps`),
-    notraRequest<GeoContentBriefsResponse>(`${projectPath}/briefs`),
-    notraRequest<GeoAgentReadinessResponse>(`${projectPath}/agent-readiness`),
-    notraRequest<GeoTrafficLogResponse>(`${projectPath}/traffic/log?limit=100`),
-    notraRequest<GeoTrafficJourneysResponse>(`${projectPath}/traffic/journeys?${window}&limit=100`),
-    notraRequest<GeoTrafficPagesResponse>(`${projectPath}/traffic/pages?${window}&limit=100`),
-    notraRequest<GeoIngestSetupResponse>("/v1/geo/ingest/setup"),
+    request<GeoSettingsResponse>(`${projectPath}/settings`),
+    request<GeoVisibilityOverviewResponse>(`${projectPath}/visibility/overview?${window}`),
+    request<GeoVisibilityTimeseriesResponse>(`${projectPath}/visibility/timeseries?${window}`),
+    request<GeoCompetitorShareResponse>(`${projectPath}/visibility/competitor-share?${window}`),
+    request<GeoLanguageShareResponse>(`${projectPath}/visibility/language-share?${window}`),
+    request<GeoPromptResultsResponse>(`${projectPath}/visibility/prompt-results?${window}`),
+    request<GeoTrafficOverviewResponse>(`${projectPath}/traffic/overview?${window}`),
+    request<GeoPromptsResponse>(`${projectPath}/prompts`),
+    request<GeoSequencesResponse>(`${projectPath}/sequences`),
+    request<GeoCompetitorsResponse>(`${projectPath}/competitors`),
+    request<GeoContentGapsResponse>(`${projectPath}/gaps`),
+    request<GeoContentBriefsResponse>(`${projectPath}/briefs`),
+    request<GeoAgentReadinessResponse>(`${projectPath}/agent-readiness`),
+    request<GeoTrafficLogResponse>(`${projectPath}/traffic/log?limit=100`),
+    request<GeoTrafficJourneysResponse>(`${projectPath}/traffic/journeys?${window}&limit=100`),
+    request<GeoTrafficPagesResponse>(`${projectPath}/traffic/pages?${window}&limit=100`),
+    request<GeoIngestSetupResponse>("/v1/geo/ingest/setup"),
   ] as const);
   const firstFulfilled = results.find((result) => result.status === "fulfilled");
-  if (results.slice(0, 7).every((result) => result.status === "rejected")) {
+  if (!firstFulfilled) {
     const reason = results[0].status === "rejected" ? results[0].reason : null;
     throw reason instanceof Error ? reason : new Error("Could not load GEO data");
   }
@@ -240,8 +242,15 @@ export async function getGeoDashboard(projectId: string, days: number): Promise<
     trafficPagesResult,
     ingestSetupResult,
   ] = results;
+  const configurationResults = [settingsResult, overviewResult, promptResultsResult] as const;
+  const configured = configurationResults.some((result) => result.status === "fulfilled" && result.value.configured)
+    ? true
+    : configurationResults.every((result) => result.status === "fulfilled" && !result.value.configured)
+      ? false
+      : null;
 
   return {
+    configured,
     settings: valueOr("Settings", settingsResult, { configured: false, organization, settings: null }),
     overview: valueOr("Visibility", overviewResult, { configured: false, engines: [], organization }),
     timeseries: valueOr("Visibility trend", timeseriesResult, { configured: false, organization, points: [] }),

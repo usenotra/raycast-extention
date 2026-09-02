@@ -2,6 +2,7 @@ import { environment } from "@raycast/api";
 import { GEO_CHART_COLORS, GEO_VISITOR_COLORS } from "../constants/geo";
 import type { BarChartItem, ChartPoint, ChartSeries } from "../types/charts";
 import type { GeoCompetitorTimeseriesPoint, GeoTimeseriesPoint, GeoTrafficPoint } from "../types/geo";
+import { escapeMarkdown } from "./geo-format";
 
 const WIDTH = 640;
 const HEIGHT = 250;
@@ -107,7 +108,7 @@ export function lineChartMarkdown(alt: string, series: ChartSeries[]): string {
     .join("");
 
   const svg = svgShell(`${legend}${grid}${xLabels}${lines}`);
-  return `![${alt}](${chartDataUri(svg)}?raycast-width=${WIDTH}&raycast-height=${HEIGHT})`;
+  return `![${escapeMarkdown(alt)}](${chartDataUri(svg)}?raycast-width=${WIDTH}&raycast-height=${HEIGHT})`;
 }
 
 export function barChartMarkdown(alt: string, items: BarChartItem[], valueSuffix = ""): string {
@@ -131,7 +132,7 @@ export function barChartMarkdown(alt: string, items: BarChartItem[], valueSuffix
     .join("");
   const chartHeight = Math.max(90, top + visible.length * rowHeight + 6);
   const svg = svgShell(rows, BAR_WIDTH, chartHeight);
-  return `![${alt}](${chartDataUri(svg)}?raycast-width=${BAR_WIDTH}&raycast-height=${chartHeight})`;
+  return `![${escapeMarkdown(alt)}](${chartDataUri(svg)}?raycast-width=${BAR_WIDTH}&raycast-height=${chartHeight})`;
 }
 
 export function aggregateVisibility(points: GeoTimeseriesPoint[], engine?: string): ChartPoint[] {

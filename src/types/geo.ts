@@ -431,6 +431,7 @@ export interface GeoDashboardData {
   briefs: GeoContentBriefsResponse;
   competitors: GeoCompetitorsResponse;
   competitorShare: GeoCompetitorShareResponse;
+  configured: boolean | null;
   errors: string[];
   gaps: GeoContentGapsResponse;
   ingestSetup: GeoIngestSetupResponse | null;

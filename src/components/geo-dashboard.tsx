@@ -165,7 +165,11 @@ function readinessReportDetail(readiness: GeoAgentReadinessResponse): React.Reac
           return `${index + 1}. **${escapeMarkdown(issue.name)}**${guidance ? `\n   ${escapeMarkdown(guidance)}` : ""}`;
         })
         .join("\n\n")
-    : "No issues found. Your site passes every eligible readiness check.";
+    : report.status === "failed"
+      ? `The readiness scan failed.${report.errorMessage ? ` ${escapeMarkdown(report.errorMessage)}` : ""}`
+      : report.status === "running"
+        ? "The readiness scan is still in progress."
+        : "No issues found. Your site passes every eligible readiness check.";
   const scoreBreakdown = report.scoreBreakdown
     ? `\n\n### Score Breakdown\n\n- **Essential:** ${report.scoreBreakdown.essential.passing} of ${report.scoreBreakdown.essential.total} passing | ${report.scoreBreakdown.essential.earned}/${report.scoreBreakdown.essential.available} points\n- **Recommended:** ${report.scoreBreakdown.recommended.passing} of ${report.scoreBreakdown.recommended.total} passing | ${report.scoreBreakdown.recommended.earned}/${report.scoreBreakdown.recommended.available} points\n- **Bonus:** ${report.scoreBreakdown.bonus.positiveSignals} positive signals | +${report.scoreBreakdown.bonus.points} points`
     : "";
@@ -936,7 +940,7 @@ function DashboardItems({ actions, data, days, onViewChange, projectId, view }: 
                   <List.Item.Detail.Metadata.Separator />
                   <List.Item.Detail.Metadata.Label
                     title="API sections"
-                    text={`${18 - data.errors.length} of 18 loaded`}
+                    text={`${17 - data.errors.length} of 17 loaded`}
                   />
                 </List.Item.Detail.Metadata>
               }
@@ -1139,11 +1143,7 @@ export function GeoDashboard({ organization, project }: GeoDashboardProps) {
     >
       {error ? (
         <List.EmptyView icon={Icon.Warning} title="Could Not Load GEO" description={error.message} actions={actions} />
-      ) : data &&
-        !data.settings.configured &&
-        !data.overview.configured &&
-        !data.promptResults.configured &&
-        !isLoading ? (
+      ) : data && data.configured === false && !isLoading ? (
         <List.EmptyView
           icon={Icon.Gauge}
           title="GEO Is Not Configured"

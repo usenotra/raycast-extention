@@ -53,7 +53,7 @@ export function formatGeoDate(value: string | null): string {
 }
 
 export function escapeMarkdown(value: string): string {
-  return value.replace(/([\\`*_[\]<>|])/g, "\\$1");
+  return value.replace(/[\r\n]+/g, " ").replace(/([\\`*_[\]<>|])/g, "\\$1");
 }
 
 export function escapeMarkdownUrl(value: string): string {
