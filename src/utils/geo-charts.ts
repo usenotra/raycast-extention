@@ -1,10 +1,11 @@
+import { environment } from "@raycast/api";
 import { GEO_CHART_COLORS, GEO_VISITOR_COLORS } from "../constants/geo";
 import type { BarChartItem, ChartPoint, ChartSeries } from "../types/charts";
 import type { GeoCompetitorTimeseriesPoint, GeoTimeseriesPoint, GeoTrafficPoint } from "../types/geo";
 
 const WIDTH = 640;
 const HEIGHT = 250;
-const BAR_WIDTH = 540;
+const BAR_WIDTH = 640;
 const PADDING = { top: 38, right: 18, bottom: 34, left: 48 } as const;
 
 function escapeXml(value: string): string {
@@ -21,14 +22,19 @@ function escapeXml(value: string): string {
 }
 
 function svgShell(body: string, width = WIDTH, height = HEIGHT): string {
+  const isDark = environment.appearance === "dark";
+  const primaryText = isDark ? "#e4e4e7" : "#3f3f46";
+  const secondaryText = isDark ? "#a1a1aa" : "#71717a";
+  const grid = isDark ? "#d4d4d8" : "#71717a";
+  const gridOpacity = isDark ? ".16" : ".18";
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img">
   <style>
-    .axis { fill: #71717a; font: 11px -apple-system, BlinkMacSystemFont, sans-serif; }
-    .legend { fill: #3f3f46; font: 12px -apple-system, BlinkMacSystemFont, sans-serif; }
-    .bar-label { fill: #3f3f46; font: 14px -apple-system, BlinkMacSystemFont, sans-serif; }
-    .bar-value { fill: #71717a; font: 12px -apple-system, BlinkMacSystemFont, sans-serif; }
-    .grid { stroke: #71717a; stroke-opacity: .18; }
-    @media (prefers-color-scheme: dark) { .axis, .bar-value { fill: #a1a1aa; } .legend, .bar-label { fill: #e4e4e7; } .grid { stroke: #d4d4d8; stroke-opacity: .16; } }
+    .axis { fill: ${secondaryText}; font: 11px -apple-system, BlinkMacSystemFont, sans-serif; }
+    .legend { fill: ${primaryText}; font: 12px -apple-system, BlinkMacSystemFont, sans-serif; }
+    .bar-label { fill: ${primaryText}; font: 14px -apple-system, BlinkMacSystemFont, sans-serif; }
+    .bar-value { fill: ${secondaryText}; font: 12px -apple-system, BlinkMacSystemFont, sans-serif; }
+    .grid { stroke: ${grid}; stroke-opacity: ${gridOpacity}; }
   </style>
   ${body}
 </svg>`;
@@ -113,7 +119,7 @@ export function barChartMarkdown(alt: string, items: BarChartItem[], valueSuffix
   const maxValue = Math.max(1, ...visible.map((item) => item.value));
   const rowHeight = 30;
   const top = 8;
-  const labelWidth = 154;
+  const labelWidth = 190;
   const chartWidth = BAR_WIDTH - labelWidth - 62;
   const rows = visible
     .map((item, index) => {
