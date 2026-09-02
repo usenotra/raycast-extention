@@ -10,7 +10,6 @@ export type GeoDashboardView =
   | "gaps"
   | "briefs"
   | "readiness"
-  | "scans"
   | "settings"
   | "traffic";
 
@@ -185,28 +184,6 @@ export interface GeoCompetitor {
 export interface GeoCompetitorsResponse {
   competitors: GeoCompetitor[];
   organization: Organization;
-}
-
-export interface GeoScan {
-  createdAt: string;
-  finishedAt: string | null;
-  id: string;
-  projectId: string;
-  startedAt: string;
-  status: "completed" | "failed" | "running";
-}
-
-export interface GeoScansResponse {
-  organization: Organization;
-  pagination: {
-    currentPage: number;
-    limit: number;
-    nextPage: number | null;
-    previousPage: number | null;
-    totalItems: number;
-    totalPages: number;
-  };
-  scans: GeoScan[];
 }
 
 export interface GeoGapBrief {
@@ -462,7 +439,6 @@ export interface GeoDashboardData {
   prompts: GeoPromptsResponse;
   promptResults: GeoPromptResultsResponse;
   readiness: GeoAgentReadinessResponse | null;
-  scans: GeoScansResponse;
   sequences: GeoSequencesResponse;
   settings: GeoSettingsResponse;
   timeseries: GeoVisibilityTimeseriesResponse;

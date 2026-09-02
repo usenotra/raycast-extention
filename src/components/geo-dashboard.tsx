@@ -359,13 +359,16 @@ function OverviewItems({ actions, data, onViewChange }: GeoOverviewItemsProps) {
           icon={Icon.Message}
           title="Prompts & Sequences"
           subtitle={`${formatInteger(data.prompts.prompts.length)} prompts across ${formatInteger(data.sequences.sequences.length)} sequences`}
-          actions={actions}
-        />
-        <List.Item
-          icon={Icon.Clock}
-          title="Scan History"
-          subtitle={`${formatInteger(data.scans.pagination.totalItems)} scans recorded`}
-          actions={actions}
+          detail={
+            <List.Item.Detail
+              markdown={`## Prompts & Sequences\n\n- **Tracked prompts:** ${formatInteger(data.prompts.prompts.length)}\n- **Prompt sequences:** ${formatInteger(data.sequences.sequences.length)}\n- **Latest results:** ${formatInteger(data.promptResults.results.length)}\n\nPress **Enter** to browse prompts, sequences, and their latest results.`}
+            />
+          }
+          actions={
+            <ActionPanel>
+              <Action icon={Icon.Message} title="View Prompts & Sequences" onAction={() => onViewChange("prompts")} />
+            </ActionPanel>
+          }
         />
       </List.Section>
     </>
@@ -839,43 +842,6 @@ function DashboardItems({ actions, data, days, onViewChange, projectId, view }: 
           ))}
         </List.Section>
       </>
-    );
-  }
-
-  if (view === "scans") {
-    return (
-      <List.Section title="Scan History" subtitle={`${formatInteger(data.scans.pagination.totalItems)} total`}>
-        {data.scans.scans.map((scan) => {
-          const icon =
-            scan.status === "completed"
-              ? { source: Icon.CheckCircle, tintColor: Color.Green }
-              : scan.status === "failed"
-                ? { source: Icon.XMarkCircle, tintColor: Color.Red }
-                : { source: Icon.CircleProgress, tintColor: Color.Orange };
-          return (
-            <List.Item
-              key={scan.id}
-              icon={icon}
-              title={formatGeoDate(scan.startedAt)}
-              subtitle={scan.finishedAt ? `Finished ${formatGeoDate(scan.finishedAt)}` : "In progress"}
-              accessories={[{ tag: scan.status }]}
-              detail={
-                <List.Item.Detail
-                  markdown={`## GEO Scan\n\n${escapeMarkdown(scan.id)}`}
-                  metadata={
-                    <List.Item.Detail.Metadata>
-                      <List.Item.Detail.Metadata.Label title="Status" text={scan.status} />
-                      <List.Item.Detail.Metadata.Label title="Started" text={formatGeoDate(scan.startedAt)} />
-                      <List.Item.Detail.Metadata.Label title="Finished" text={formatGeoDate(scan.finishedAt)} />
-                    </List.Item.Detail.Metadata>
-                  }
-                />
-              }
-              actions={actions}
-            />
-          );
-        })}
-      </List.Section>
     );
   }
 

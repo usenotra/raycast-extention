@@ -18,7 +18,6 @@ export const GEO_VIEWS: ReadonlyArray<{
   { value: "gaps", title: "Content Gaps", icon: Icon.LightBulb },
   { value: "briefs", title: "Content Briefs", icon: Icon.Document },
   { value: "readiness", title: "Agent Readiness", icon: Icon.CheckCircle },
-  { value: "scans", title: "Scan History", icon: Icon.Clock },
   { value: "settings", title: "Settings", icon: Icon.Gear },
   { value: "traffic", title: "AI Traffic", icon: Icon.BarChart },
 ];
