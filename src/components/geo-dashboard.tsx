@@ -242,6 +242,34 @@ function projectOverviewDetail(projectName: string, data: GeoDashboardData, days
 function OverviewItems({ actions, data, onViewChange }: GeoOverviewItemsProps) {
   const visibility = summarizeVisibility(data.overview.engines);
   const modelVisibility = visibilityByModelMarkdown(data);
+  const promptGapCount = data.gaps.promptGaps.length;
+  const searchGapCount = data.gaps.searchGaps.length;
+  const gapCount = promptGapCount + searchGapCount;
+  const topPromptGaps = [...data.gaps.promptGaps]
+    .sort((left, right) => right.opportunity - left.opportunity)
+    .slice(0, 3);
+  const topSearchGaps = [...data.gaps.searchGaps]
+    .sort((left, right) => (right.impressions ?? -1) - (left.impressions ?? -1))
+    .slice(0, 3);
+  const promptGapDetails = topPromptGaps.length
+    ? `\n\n## Priority Prompt Gaps\n\n${topPromptGaps
+        .map(
+          (gap, index) =>
+            `${index + 1}. **${escapeMarkdown(gap.title ?? gap.prompt)}**\n   ${formatPercent(gap.ownMentionRate)} own mention rate · ${formatInteger(gap.competitors.length)} competitors · ${formatInteger(gap.engines.length)} engines`,
+        )
+        .join("\n\n")}`
+    : "";
+  const searchGapDetails = topSearchGaps.length
+    ? `\n\n## Search Gaps\n\n${topSearchGaps
+        .map(
+          (gap) =>
+            `- **${escapeMarkdown(gap.title ?? gap.prompt)}**${gap.impressions === null ? "" : ` · ${formatInteger(gap.impressions)} impressions`}`,
+        )
+        .join("\n")}`
+    : "";
+  const contentGapDetail = gapCount
+    ? `# ${formatInteger(gapCount)} Content ${gapCount === 1 ? "Gap" : "Gaps"}\n\nThese are topics where competitors appear but your brand has room to improve.${promptGapDetails}${searchGapDetails}\n\n*Open Content Gaps to review all opportunities.*`
+    : "# No Content Gaps\n\nThe latest scan did not find any prompt or search gaps.";
   const shareChart = barChartMarkdown(
     "Share of voice",
     [...data.competitorShare.points]
@@ -292,19 +320,47 @@ function OverviewItems({ actions, data, onViewChange }: GeoOverviewItemsProps) {
       ) : null}
       <List.Section title="Improve">
         <List.Item
-          icon={Icon.LightBulb}
-          title="Content Opportunities"
-          subtitle={`${formatInteger(data.gaps.promptGaps.length)} prompt gaps, ${formatInteger(data.gaps.searchGaps.length)} search gaps`}
+          icon={
+            gapCount
+              ? { source: Icon.LightBulb, tintColor: Color.Orange }
+              : { source: Icon.CheckCircle, tintColor: Color.Green }
+          }
+          title="Content Gaps"
+          subtitle={
+            gapCount
+              ? `${formatInteger(promptGapCount)} prompt ${promptGapCount === 1 ? "gap" : "gaps"}, ${formatInteger(searchGapCount)} search ${searchGapCount === 1 ? "gap" : "gaps"}`
+              : "No gaps found in the latest scan"
+          }
           accessories={
-            data.briefs.briefs.length ? [{ text: `${formatInteger(data.briefs.briefs.length)} briefs` }] : undefined
+            gapCount ? [{ tag: { value: `${formatInteger(gapCount)} open`, color: Color.Orange } }] : undefined
           }
-          detail={
-            <List.Item.Detail
-              markdown={`## Content Opportunities\n\n- **Prompt gaps:** ${formatInteger(data.gaps.promptGaps.length)}\n- **Search gaps:** ${formatInteger(data.gaps.searchGaps.length)}\n- **Content briefs:** ${formatInteger(data.briefs.briefs.length)}`}
-            />
+          detail={<List.Item.Detail markdown={contentGapDetail} />}
+          actions={
+            <ActionPanel>
+              <Action icon={Icon.List} title="Review Content Gaps" onAction={() => onViewChange("gaps")} />
+            </ActionPanel>
           }
-          actions={actions}
         />
+        {data.briefs.briefs.length ? (
+          <List.Item
+            icon={Icon.Document}
+            title="Content Briefs"
+            subtitle={`${formatInteger(data.briefs.briefs.length)} ${data.briefs.briefs.length === 1 ? "brief" : "briefs"} ready to review`}
+            detail={
+              <List.Item.Detail
+                markdown={`# Content Briefs\n\nTurn validated content gaps into focused articles.\n\n## Recently Created\n\n${data.briefs.briefs
+                  .slice(0, 3)
+                  .map((brief) => `- **${escapeMarkdown(brief.workingTitle)}** · ${escapeMarkdown(brief.status)}`)
+                  .join("\n")}`}
+              />
+            }
+            actions={
+              <ActionPanel>
+                <Action icon={Icon.Document} title="Review Content Briefs" onAction={() => onViewChange("briefs")} />
+              </ActionPanel>
+            }
+          />
+        ) : null}
         {data.readiness?.report ? (
           <List.Item
             icon={{
