@@ -11,7 +11,7 @@ View GEO analytics, manage content, and create content with [Notra](https://www.
 ## Commands
 
 - **View GEO Analytics** — Explore visibility, competitors, prompts, content gaps, briefs, agent readiness, scans, settings, and AI traffic across your GEO projects
-- **List Posts** — Browse and manage your posts
+- **List Content** — Browse and manage your content
 - **Create Content** — Create a new post using AI
 - **List Brand Identities** — Browse and manage your brand identities
 - **Create Brand Identity** — Generate a new brand identity from a website
